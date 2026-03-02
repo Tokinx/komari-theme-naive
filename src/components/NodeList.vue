@@ -376,7 +376,7 @@ const columnTitles: Record<string, string> = {
                 <div class="text-xs flex gap-1 items-center" :style="{ fontFamily: appStore.numberFontFamily }">
                   <NText>{{ ((node.ram ?? 0) / (node.mem_total || 1) * 100).toFixed(1) }}%</NText>
                   <NText :depth="3">
-                    ({{ formatBytes(node.ram ?? 0) }}/{{ formatBytes(node.mem_total ?? 0) }})
+                    ({{ formatBytes(node.ram ?? 0) }} / {{ formatBytes(node.mem_total ?? 0) }})
                   </NText>
                 </div>
                 <NProgress :show-indicator="false" :percentage="(node.ram ?? 0) / (node.mem_total || 1) * 100" :status="getStatus((node.ram ?? 0) / (node.mem_total || 1) * 100)" :height="4" />
@@ -389,7 +389,7 @@ const columnTitles: Record<string, string> = {
                 <div class="text-xs flex gap-1 items-center" :style="{ fontFamily: appStore.numberFontFamily }">
                   <NText>{{ ((node.disk ?? 0) / (node.disk_total || 1) * 100).toFixed(1) }}%</NText>
                   <NText :depth="3">
-                    ({{ formatBytes(node.disk ?? 0) }}/{{ formatBytes(node.disk_total ?? 0) }})
+                    ({{ formatBytes(node.disk ?? 0) }} / {{ formatBytes(node.disk_total ?? 0) }})
                   </NText>
                 </div>
                 <NProgress :show-indicator="false" :percentage="(node.disk ?? 0) / (node.disk_total || 1) * 100" :status="getStatus((node.disk ?? 0) / (node.disk_total || 1) * 100)" :height="4" />
@@ -407,7 +407,7 @@ const columnTitles: Record<string, string> = {
                         <div class="text-xs flex gap-1 items-center" :style="{ fontFamily: appStore.numberFontFamily }">
                           <NText>{{ getTrafficUsedPercentage(node).toFixed(1) }}%</NText>
                           <NText :depth="3">
-                            ({{ formatBytes(getTrafficUsed(node)) }}/{{ formatBytes(node.traffic_limit) }})
+                            ({{ formatBytes(getTrafficUsed(node)) }} / {{ formatBytes(node.traffic_limit) }})
                           </NText>
                         </div>
                         <!-- 统一使用 TrafficProgress 组件，自动根据类型选择颜色 -->

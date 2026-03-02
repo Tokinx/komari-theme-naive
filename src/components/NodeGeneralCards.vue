@@ -71,10 +71,10 @@ const cardBlurClass = computed(() => {
 </script>
 
 <template>
-  <div class="general-info p-2 flex flex-col gap-2 sm:p-4 sm:gap-4 lg:grid lg:grid-cols-5" :class="{ 'light-general-contrast': appStore.lightCardContrast && !appStore.isDark }">
+  <div class="general-info p-4 flex flex-col gap-2 sm:p-4 sm:gap-4 lg:grid lg:grid-cols-5" :class="{ 'light-general-contrast': appStore.lightCardContrast && !appStore.isDark }">
     <!-- 当前时间 -->
     <NCard hoverable class="sm:min-h-32" :class="[{ 'glass-card-enabled': hasBackgroundBlur }, cardBlurClass]" content-class="h-full">
-      <!-- 移动端：单行显示 -->
+      <!-- 移动端单行显示 -->
       <div class="flex gap-2 items-center justify-between sm:hidden" :style="{ fontFamily: appStore.numberFontFamily }">
         <NText :depth="3" class="text-xs flex shrink-0 gap-1 items-center">
           <div class="i-icon-park-outline-time" />
@@ -84,7 +84,7 @@ const cardBlurClass = computed(() => {
           {{ currentTime }}
         </NText>
       </div>
-      <!-- 桌面端：垂直布局 -->
+      <!-- 桌面端垂直布局 -->
       <div class="flex-col h-full hidden justify-between sm:flex">
         <div :style="{ fontFamily: appStore.numberFontFamily }">
           <NText class="text-2xl font-bold m-0">
@@ -100,7 +100,7 @@ const cardBlurClass = computed(() => {
 
     <!-- 在线节点 -->
     <NCard hoverable class="sm:min-h-32" :class="[{ 'glass-card-enabled': hasBackgroundBlur }, cardBlurClass]" content-class="h-full">
-      <!-- 移动端：单行显示 -->
+      <!-- 移动端单行显示 -->
       <div class="flex gap-2 items-center justify-between sm:hidden" :style="{ fontFamily: appStore.numberFontFamily }">
         <NText :depth="3" class="text-xs flex shrink-0 gap-1 items-center">
           <div class="i-icon-park-outline-heartbeat" />
@@ -110,19 +110,25 @@ const cardBlurClass = computed(() => {
           <NText class="text-base font-bold m-0">
             {{ onlineNodeCount }}
           </NText>
+          <NText :depth="3" class="text-xs m-0 p-1">
+            /
+          </NText>
           <NText :depth="3" class="text-xs m-0">
-            / {{ nodesStore.nodes.length }}
+            {{ nodesStore.nodes.length }}
           </NText>
         </div>
       </div>
-      <!-- 桌面端：垂直布局 -->
+      <!-- 桌面端垂直布局 -->
       <div class="flex-col h-full hidden justify-between sm:flex">
         <div :style="{ fontFamily: appStore.numberFontFamily }">
           <NText class="text-2xl font-bold m-0">
             {{ onlineNodeCount }}
           </NText>
+          <NText :depth="3" class="text-xs m-0 p-1">
+            /
+          </NText>
           <NText :depth="3" class="text-xs m-0">
-            / {{ nodesStore.nodes.length }}
+            {{ nodesStore.nodes.length }}
           </NText>
         </div>
         <NText :depth="3" class="text-xs flex gap-1 items-center">
@@ -134,7 +140,7 @@ const cardBlurClass = computed(() => {
 
     <!-- 点亮区域 -->
     <NCard hoverable class="sm:min-h-32" :class="[{ 'glass-card-enabled': hasBackgroundBlur }, cardBlurClass]" content-class="h-full">
-      <!-- 移动端：单行显示 -->
+      <!-- 移动端单行显示 -->
       <div class="flex gap-2 items-center justify-between sm:hidden" :style="{ fontFamily: appStore.numberFontFamily }">
         <NText :depth="3" class="text-xs flex shrink-0 gap-1 items-center">
           <div class="i-icon-park-outline-world" />
@@ -144,7 +150,7 @@ const cardBlurClass = computed(() => {
           {{ onlineRegionCount }}
         </NText>
       </div>
-      <!-- 桌面端：垂直布局 -->
+      <!-- 桌面端垂直布局 -->
       <div class="flex-col h-full hidden justify-between sm:flex">
         <div :style="{ fontFamily: appStore.numberFontFamily }">
           <NText class="text-2xl font-bold m-0">
@@ -160,7 +166,7 @@ const cardBlurClass = computed(() => {
 
     <!-- 流量总览 -->
     <NCard hoverable class="sm:min-h-32" :class="[{ 'glass-card-enabled': hasBackgroundBlur }, cardBlurClass]" content-class="h-full">
-      <!-- 移动端：单行显示 -->
+      <!-- 移动端单行显示 -->
       <div class="flex gap-2 items-center justify-between sm:hidden" :style="{ fontFamily: appStore.numberFontFamily }">
         <NText :depth="3" class="text-xs flex shrink-0 gap-1 items-center">
           <div class="i-icon-park-outline-transfer-data" />
@@ -179,7 +185,7 @@ const cardBlurClass = computed(() => {
           </div>
         </div>
       </div>
-      <!-- 桌面端：垂直布局 -->
+      <!-- 桌面端垂直布局 -->
       <div class="flex-col h-full hidden justify-between sm:flex">
         <div class="flex flex-col gap-1" :style="{ fontFamily: appStore.numberFontFamily }">
           <div class="flex gap-1 items-baseline">
@@ -202,7 +208,7 @@ const cardBlurClass = computed(() => {
 
     <!-- 网络速率 -->
     <NCard hoverable class="sm:min-h-32" :class="[{ 'glass-card-enabled': hasBackgroundBlur }, cardBlurClass]" content-class="h-full">
-      <!-- 移动端：单行显示 -->
+      <!-- 移动端单行显示 -->
       <div class="flex gap-2 items-center justify-between sm:hidden" :style="{ fontFamily: appStore.numberFontFamily }">
         <NText :depth="3" class="text-xs flex shrink-0 gap-1 items-center">
           <div class="i-icon-park-outline-lightning" />
@@ -221,7 +227,7 @@ const cardBlurClass = computed(() => {
           </div>
         </div>
       </div>
-      <!-- 桌面端：垂直布局 -->
+      <!-- 桌面端垂直布局 -->
       <div class="flex-col h-full hidden justify-between sm:flex">
         <div class="flex flex-col gap-1" :style="{ fontFamily: appStore.numberFontFamily }">
           <div class="flex gap-1 items-baseline">

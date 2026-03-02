@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { NodeData } from '@/stores/nodes'
-import { NBadge, NButton, NCard, NEllipsis, NIcon, NModal, NProgress, NTag, NText, NTooltip, useThemeVars } from 'naive-ui'
+import { NButton, NCard, NEllipsis, NIcon, NModal, NProgress, NTag, NText, NTooltip, useThemeVars } from 'naive-ui'
 import { computed, ref } from 'vue'
 import PingChart from '@/components/PingChart.vue'
 import TrafficProgress from '@/components/TrafficProgress.vue'
@@ -211,7 +211,14 @@ const cardBlurClass = computed(() => {
           <!-- <NTag :type="props.node.online ? 'success' : 'error'">
             {{ props.node.online ? '在线' : '离线' }}
           </NTag> -->
-          <NBadge :type="props.node.online ? 'success' : 'error'" size="small" dot :processing="props.node.online" />
+          <!-- <NBadge :type="props.node.online ? 'success' : 'error'" size="small" dot /> -->
+          <div
+            class="online-badge"
+            :class="{ 'online-badge--online': props.node.online }"
+            :style="{ backgroundColor: props.node.online ? themeVars.successColor : themeVars.errorColor }"
+          >
+            <div v-if="props.node.online" class="online-badge__wave" :style="{ backgroundColor: themeVars.successColor }" />
+          </div>
         </div>
       </template>
       <template #default>
@@ -245,7 +252,7 @@ const cardBlurClass = computed(() => {
               </div>
               <NProgress :show-indicator="false" :percentage="props.node.cpu ?? 0" :status="cpuStatus" :height="4" />
               <NText :depth="3" class="text-[10px]" :style="{ fontFamily: appStore.numberFontFamily }">
-                {{ node.load.toFixed(2) ?? 0 }} | {{ node.load5.toFixed(2) ?? 0 }} | {{ node.load15.toFixed(2) ?? 0 }}
+                {{ node.load.toFixed(2) ?? 0 }}, {{ node.load5.toFixed(2) ?? 0 }}, {{ node.load15.toFixed(2) ?? 0 }}
               </NText>
             </div>
 
@@ -311,11 +318,11 @@ const cardBlurClass = computed(() => {
                   </NText>
                 </template>
                 <NText class="text-[10px]" :style="{ fontFamily: appStore.numberFontFamily }">
-                  <span :style="{ color: appStore.trafficSplitColor ? themeVars.successColor : themeVars.textColorBase }">↑ {{ formatBytes(props.node.net_total_up ?? 0) }}</span> ｜ <span :style="{ color: appStore.trafficSplitColor ? themeVars.infoColor : themeVars.textColorBase }">↓ {{ formatBytes(props.node.net_total_down ?? 0) }}</span>
+                  <span :style="{ color: appStore.trafficSplitColor ? themeVars.successColor : themeVars.textColorBase }">↑ {{ formatBytes(props.node.net_total_up ?? 0) }}</span><span class="p-1" /><span :style="{ color: appStore.trafficSplitColor ? themeVars.infoColor : themeVars.textColorBase }">↓ {{ formatBytes(props.node.net_total_down ?? 0) }}</span>
                 </NText>
               </NTooltip>
               <NText v-else :depth="3" class="text-[10px]" :style="{ fontFamily: appStore.numberFontFamily }">
-                <span :style="{ color: appStore.trafficSplitColor ? themeVars.successColor : themeVars.textColor3 }">↑ {{ formatBytes(props.node.net_total_up ?? 0) }}</span> ｜ <span :style="{ color: appStore.trafficSplitColor ? themeVars.infoColor : themeVars.textColor3 }">↓ {{ formatBytes(props.node.net_total_down ?? 0) }}</span>
+                <span :style="{ color: appStore.trafficSplitColor ? themeVars.successColor : themeVars.textColor3 }">↑ {{ formatBytes(props.node.net_total_up ?? 0) }}</span><span class="p-1" /><span :style="{ color: appStore.trafficSplitColor ? themeVars.infoColor : themeVars.textColor3 }">↓ {{ formatBytes(props.node.net_total_down ?? 0) }}</span>
               </NText>
             </div>
           </div>
@@ -325,9 +332,9 @@ const cardBlurClass = computed(() => {
             <NText :depth="3" class="text-[13px]">
               网络速率
             </NText>
-            <NText class="text-[13px]" :style="{ fontFamily: appStore.numberFontFamily }">
-              <span :style="{ color: themeVars.successColor }">↑ {{ formatBytesPerSecond(props.node.net_out ?? 0) }}</span> ｜ <span :style="{ color: themeVars.infoColor }">↓ {{ formatBytesPerSecond(props.node.net_in ?? 0) }}</span>
-            </NText>
+            <div class="text-[13px] flex gap-1" :style="{ fontFamily: appStore.numberFontFamily }">
+              <span :style="{ color: themeVars.successColor }">↑ {{ formatBytesPerSecond(props.node.net_out ?? 0) }}</span><span class="" /><span :style="{ color: themeVars.infoColor }">↓ {{ formatBytesPerSecond(props.node.net_in ?? 0) }}</span>
+            </div>
           </div>
 
           <!-- 运行时间 -->
@@ -440,6 +447,36 @@ html.dark .glass-card-enabled {
 
   &:hover {
     filter: brightness(1.1);
+  }
+}
+
+.online-badge {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.online-badge__wave {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  opacity: 0.4;
+  animation: online-badge-wave 1.5s infinite ease-out;
+}
+
+@keyframes online-badge-wave {
+  0% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
   }
 }
 </style>
