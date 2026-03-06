@@ -195,7 +195,9 @@ const lightCardContrastEnabled = computed(() => appStore.lightCardContrast && !a
                 </NText>
               </div>
               <NText class="text-sm break-all" :style="{ fontFamily: appStore.numberFontFamily }">
-                ↑ {{ formatBytes(data?.net_total_up ?? 0) }} ｜ ↓ {{ formatBytes(data?.net_total_down ?? 0) }}
+                ↑ {{ formatBytes(data?.net_total_up ?? 0) }}
+                <span class="p-1" />
+                ↓ {{ formatBytes(data?.net_total_down ?? 0) }}
               </NText>
             </div>
             <div class="flex flex-col gap-1">
@@ -206,7 +208,9 @@ const lightCardContrastEnabled = computed(() => appStore.lightCardContrast && !a
                 </NText>
               </div>
               <NText class="text-sm break-all" :style="{ fontFamily: appStore.numberFontFamily }">
-                ↑ {{ formatBytesPerSecond(data?.net_out ?? 0) }} ｜ ↓ {{ formatBytesPerSecond(data?.net_in ?? 0) }}
+                ↑ {{ formatBytesPerSecond(data?.net_out ?? 0) }}
+                <span class="p-1" />
+                ↓ {{ formatBytesPerSecond(data?.net_in ?? 0) }}
               </NText>
             </div>
           </div>
