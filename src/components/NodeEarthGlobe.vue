@@ -151,6 +151,13 @@ const regionRates = computed<Map<string, RegionRate>>(() => {
   return map
 })
 
+const arcsEnabled = computed(() => appStore.visitorInfoCardEnabled && appStore.visitorCountryCode != null)
+const userCoord = computed<[number, number] | null>(() => {
+  if (!appStore.visitorInfoCardEnabled)
+    return null
+  return getCoordByCode(appStore.visitorCountryCode)
+})
+
 const clusterOverlayEls = new Map<string, HTMLDivElement>()
 const clusterOverlayRefBinders = new Map<string, (el: Element | ComponentPublicInstance | null) => void>()
 
@@ -251,17 +258,15 @@ const markers = computed<Marker[]>(() => {
   }))
 })
 
-// 以服务器数最多的地区为中心，向其余地区连线，形成 CDN 拓扑
+// 从各地区汇聚到用户当前位置；无用户坐标时回退到 hub 拓扑
 const arcs = computed<Arc[]>(() => {
   const clusters = regionClusters.value
-  if (clusters.length < 2)
+  const user = userCoord.value
+  if (!arcsEnabled.value || !user || clusters.length === 0)
     return []
-  const hub = clusters[0]
-  if (!hub)
-    return []
-  return clusters.slice(1).map(cluster => ({
-    from: hub.coord,
-    to: cluster.coord,
+  return clusters.map(cluster => ({
+    from: cluster.coord,
+    to: user,
   }))
 })
 
@@ -305,8 +310,8 @@ function buildInitialOptions(): COBEOptions {
     markers: markers.value,
     arcs: arcs.value,
     arcColor: colors.arcColor,
-    arcWidth: 0.75,
-    arcHeight: 0.3,
+    arcWidth: 0.8,
+    arcHeight: 0.4,
     markerElevation: MARKER_ELEVATION,
   }
 }
@@ -328,7 +333,7 @@ const { pause: pauseRaf, resume: resumeRaf } = useRafFn(
     const prevPhi = phi
     const prevTheta = theta
     if (!isPointerDown && shouldAutoRotate.value)
-      targetPhi += 0.0025
+      targetPhi += 0.002
     phi += (targetPhi - phi) * 1
     theta += (targetTheta - theta) * 1
     if (
@@ -427,9 +432,8 @@ watch(
   },
 )
 
-// 仅地区集合或在线状态变化时才推送 markers；速率推送不触发
 watch(
-  () => regionClusters.value.map(clusterKey).join(','),
+  [() => regionClusters.value.map(clusterKey).join(','), userCoord],
   async () => {
     if (!globe)
       return
