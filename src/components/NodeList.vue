@@ -95,6 +95,7 @@ const sortedNodes = computed(() => {
       case 'mem': return dir * ((a.ram ?? 0) / (a.mem_total || 1) - (b.ram ?? 0) / (b.mem_total || 1))
       case 'disk': return dir * ((a.disk ?? 0) / (a.disk_total || 1) - (b.disk ?? 0) / (b.disk_total || 1))
       case 'traffic':
+        return dir * (getTrafficUsedPercentage(a) - getTrafficUsedPercentage(b))
       case 'rate':
         return dir * (((a.net_out ?? 0) + (a.net_in ?? 0)) - ((b.net_out ?? 0) + (b.net_in ?? 0)))
       default: return 0
