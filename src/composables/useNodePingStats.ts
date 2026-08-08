@@ -407,6 +407,7 @@ function buildStats(records: PingRecord[], tasks: PingTaskInfo[]): NodePingStats
   const avgVolatility = average(volatilityValues)
   const hasData = history.length > 0 || latencyValues.length > 0 || taskLossValues.length > 0
 
+  const taskOrderMap = new Map(tasks.map((t, index) => [t.id, index]))
   const taskNameMap = new Map(tasks.map(t => [t.id, t.name]))
   const perTaskStats: NodePingPerTaskStat[] = Array.from(taskRecords.entries(), ([taskId, taskRecs]) => {
     const validValues = taskRecs.map(r => r.value).filter(v => v >= 0)
@@ -417,7 +418,7 @@ function buildStats(records: PingRecord[], tasks: PingTaskInfo[]): NodePingStats
     const name = taskNameMap.get(taskId) ?? `Ping ${taskId}`
     return { taskId, name, avgLatency, loss }
   })
-    .sort((a, b) => a.taskId - b.taskId)
+    .sort((a, b) => (taskOrderMap.get(a.taskId) ?? 0) - (taskOrderMap.get(b.taskId) ?? 0))
 
   return {
     avgLatency,
