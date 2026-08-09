@@ -23,6 +23,7 @@
       { "key": "visitorInfoCardEnabled", "name": "访客信息卡片", "type": "switch", "default": true, "help": "显示访客来源、设备和浏览器信息卡片" },
       { "key": "hideAdminEntryWhenLoggedOut", "name": "隐藏后台入口", "type": "switch", "default": false, "help": "未登录时隐藏顶部后台管理入口" },
       { "key": "disablePageAnimation", "name": "减弱过渡动画", "type": "switch", "default": false, "help": "减少页面过渡动画效果，提升访问速度和响应性" },
+      { "key": "pingNetworkOrder", "name": "延迟节点排序", "type": "string", "default": "", "help": "自定义三网延迟显示的节点及顺序，多个节点用英文逗号分隔，固定显示 3 条。示例：上海联通,上海电信,上海移动" },
       { "name": "备案设置", "type": "title" },
       { "key": "icpEnabled", "name": "显示备案号", "type": "switch", "default": false, "help": "在页脚显示网站备案号" },
       { "key": "icpNumber", "name": "备案号", "type": "string", "default": "", "help": "网站备案号（如：京ICP备12345678号）" },

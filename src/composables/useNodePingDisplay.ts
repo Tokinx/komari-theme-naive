@@ -1,6 +1,8 @@
 import type { MaybeRefOrGetter } from 'vue'
+import type { NodePingPerTaskStat } from '@/composables/useNodePingStats'
 import { computed, toValue } from 'vue'
 import { NODE_PING_BAR_COUNT, useNodePingStats } from '@/composables/useNodePingStats'
+import { useAppStore } from '@/stores/app'
 import { formatDateTime } from '@/utils/helper'
 
 export type NodePingMetric = 'latency' | 'loss'
@@ -8,10 +10,19 @@ export type NodePingMetric = 'latency' | 'loss'
 // getRecords 在新版主控中返回的是近期可用样本，不保证覆盖完整 1 小时。
 const RECENT_PING_RECORDS_QUERY_HOURS = 1
 
+// 三网延迟固定展示的记录数量
+const PING_NETWORK_DISPLAY_COUNT = 3
+
 export interface NodePingBar {
   key: string
   className: string
   tooltip: string
+}
+
+interface NodePingNetworkDisplay {
+  name: string
+  latency: string
+  toneClass: string
 }
 
 interface UseNodePingDisplayOptions {
@@ -60,10 +71,19 @@ function getLossToneClass(loss: number): string {
   return 'bg-rose-500/80'
 }
 
+function toNetworkDisplay(stat: NodePingPerTaskStat): NodePingNetworkDisplay {
+  return {
+    name: stat.name,
+    latency: stat.avgLatency >= 0 ? `${Math.round(stat.avgLatency)}ms` : '--',
+    toneClass: stat.avgLatency >= 0 ? getPingToneClass(stat.avgLatency) : 'text-rose-500',
+  }
+}
+
 export function useNodePingDisplay(
   uuid: MaybeRefOrGetter<string>,
   options: UseNodePingDisplayOptions = {},
 ) {
+  const appStore = useAppStore()
   // Komari 1.2.6+ uses metric-store retention and keeps the legacy public
   // record fields for compatibility only. They can report records as disabled
   // even when ping metrics are available, so only an explicit caller option
@@ -163,11 +183,39 @@ export function useNodePingDisplay(
   })
 
   const topPingNetworks = computed(() => {
-    return pingStats.perTaskStats.value.slice(0, 3).map(p => ({
-      name: p.name,
-      latency: p.avgLatency >= 0 ? `${Math.round(p.avgLatency)}ms` : '--',
-      toneClass: p.avgLatency >= 0 ? getPingToneClass(p.avgLatency) : 'text-rose-500',
-    }))
+    const perTaskStats = pingStats.perTaskStats.value
+    const configuredNames = appStore.pingNetworkOrder
+
+    // 未配置自定义顺序时保持默认行为：按 taskId 顺序取前 3 条
+    if (!configuredNames.length)
+      return perTaskStats.slice(0, PING_NETWORK_DISPLAY_COUNT).map(toNetworkDisplay)
+
+    const statsByName = new Map(perTaskStats.map(stat => [stat.name, stat]))
+    const selected: NodePingPerTaskStat[] = []
+    const usedTaskIds = new Set<number>()
+
+    // 按配置顺序精确匹配节点名称，最多取 3 条
+    for (const name of configuredNames) {
+      if (selected.length >= PING_NETWORK_DISPLAY_COUNT)
+        break
+      const stat = statsByName.get(name)
+      if (stat && !usedTaskIds.has(stat.taskId)) {
+        selected.push(stat)
+        usedTaskIds.add(stat.taskId)
+      }
+    }
+
+    // 不足 3 条时用剩余任务（taskId 升序）补位
+    for (const stat of perTaskStats) {
+      if (selected.length >= PING_NETWORK_DISPLAY_COUNT)
+        break
+      if (!usedTaskIds.has(stat.taskId)) {
+        selected.push(stat)
+        usedTaskIds.add(stat.taskId)
+      }
+    }
+
+    return selected.map(toNetworkDisplay)
   })
 
   return {

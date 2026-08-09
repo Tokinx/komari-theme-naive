@@ -149,6 +149,24 @@ const useAppStore = defineStore('app', () => {
     return false
   })
 
+  // 计算属性：三网延迟显示节点顺序（未配置时返回空数组，保持默认排序）
+  const pingNetworkOrder = computed<string[]>(() => {
+    const settings = publicSettings.value?.theme_settings
+    const raw = settings && typeof settings.pingNetworkOrder === 'string' ? settings.pingNetworkOrder : ''
+    const seen = new Set<string>()
+    const names: string[] = []
+
+    for (const item of raw.split(',')) {
+      const normalized = item.trim()
+      if (!normalized || seen.has(normalized))
+        continue
+      seen.add(normalized)
+      names.push(normalized)
+    }
+
+    return names
+  })
+
   // 计算属性：ICP 备案配置
   const icpEnabled = computed<boolean>(() => {
     const settings = publicSettings.value?.theme_settings
@@ -329,6 +347,7 @@ const useAppStore = defineStore('app', () => {
     visitorCountryCode,
     hideAdminEntryWhenLoggedOut,
     disablePageAnimation,
+    pingNetworkOrder,
     icpEnabled,
     icpNumber,
     icpUrl,
