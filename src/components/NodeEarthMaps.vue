@@ -17,6 +17,7 @@ interface EarthMapPoint {
   name: string
   coord: [number, number]
   online: number
+  offline: number
   total: number
 }
 
@@ -59,12 +60,14 @@ const points = computed<EarthMapPoint[]>(() => {
         name: resolveCountryDisplayName(node.region, code),
         coord,
         online: node.online ? 1 : 0,
+        offline: node.online ? 0 : 1,
         total: 1,
       })
       continue
     }
     current.total += 1
     current.online += node.online ? 1 : 0
+    current.offline += node.online ? 0 : 1
   }
 
   return Array.from(map.values()).sort((a, b) => b.online - a.online || b.total - a.total)
@@ -82,6 +85,12 @@ const chartThemeColors = computed(() => ({
   offlineAreaColor: appStore.isDark ? 'rgba(234, 179, 8, 0.32)' : 'rgba(202, 138, 4, 0.22)',
   activeBorderColor: appStore.isDark ? 'rgba(16, 185, 129, 0.95)' : 'rgba(5, 150, 105, 0.92)',
   offlineBorderColor: appStore.isDark ? 'rgba(234, 179, 8, 0.8)' : 'rgba(202, 138, 4, 0.88)',
+  dotEmerald: appStore.isDark ? 'rgba(16, 185, 129, 0.92)' : 'rgba(5, 150, 105, 0.9)',
+  dotYellow: appStore.isDark ? 'rgba(234, 179, 8, 0.92)' : 'rgba(202, 138, 4, 0.9)',
+  text: appStore.isDark ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.85)',
+  textSecondary: appStore.isDark ? 'rgba(255, 255, 255, 0.55)' : 'rgba(0, 0, 0, 0.55)',
+  tooltipBg: appStore.isDark ? 'rgba(40, 40, 40, 0.95)' : 'rgba(255, 255, 255, 0.8)',
+  tooltipShadow: appStore.isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(0, 0, 0, 0.06)',
 }))
 
 const mapSeriesData = computed(() => points.value.map(point => ({
@@ -108,9 +117,65 @@ const mapSeriesData = computed(() => points.value.map(point => ({
   },
 })))
 
+const scatterData = computed(() => points.value.map(point => ({
+  name: point.name,
+  code: point.code,
+  value: [point.coord[1], point.coord[0], point.total],
+  online: point.online,
+  offline: point.offline,
+  itemStyle: {
+    color: point.offline > 0
+      ? chartThemeColors.value.dotYellow
+      : chartThemeColors.value.dotEmerald,
+  },
+})))
+
 const chartOption = computed<EChartsOption>(() => ({
   animationDurationUpdate: 300,
   animationEasingUpdate: 'cubicOut',
+  tooltip: {
+    trigger: 'item',
+    confine: true,
+    backgroundColor: chartThemeColors.value.tooltipBg,
+    borderColor: 'transparent',
+    borderWidth: 0,
+    borderRadius: 6,
+    textStyle: {
+      color: chartThemeColors.value.text,
+      fontSize: 12,
+      lineHeight: 20,
+    },
+    extraCssText: `padding: 3px 6px;backdrop-filter: blur(5px);z-index:9;box-shadow:0 0 0 0.5px ${chartThemeColors.value.tooltipShadow}, 0 0 16px ${chartThemeColors.value.tooltipShadow}`,
+    formatter: (params: unknown) => {
+      const p = params as { name: string, data: { code: string, online: number, offline: number } }
+      if (!p.data)
+        return ''
+      const flag = `<img src="/assets/flags/${p.data.code}.svg" style="width:16px;height:16px;vertical-align:middle;margin-right:2px" />`
+      const dot = (color: string) => `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${color}"></span>`
+      const online = `<span style="display:flex;gap:4px;align-items:center">${dot(chartThemeColors.value.dotEmerald)} ${p.data.online}</span>`
+      const offline = p.data.offline > 0 ? ` <span style="display:flex;gap:4px;align-items:center">${dot(chartThemeColors.value.dotYellow)} ${p.data.offline}</span>` : ''
+      return `<div style="line-height:1.4"><span style="display:flex;gap:2px;align-items:center;">${flag}${p.name}</span><div style="display:flex;gap:8px;align-items:center;color:${chartThemeColors.value.textSecondary}">${online}${offline}</div></div>`
+    },
+  },
+  geo: {
+    map: mapName.value,
+    roam: false,
+    layoutCenter: ['50%', '50%'],
+    layoutSize: '168%',
+    silent: true,
+    itemStyle: {
+      areaColor: 'transparent',
+      borderColor: 'transparent',
+    },
+    emphasis: {
+      itemStyle: {
+        areaColor: 'transparent',
+        borderColor: 'transparent',
+      },
+      label: { show: false },
+    },
+    label: { show: false },
+  },
   series: [
     {
       type: 'map',
@@ -123,6 +188,7 @@ const chartOption = computed<EChartsOption>(() => ({
       height: '100%',
       layoutCenter: ['50%', '50%'],
       layoutSize: '168%',
+      tooltip: { show: false },
       emphasis: {
         label: { show: false },
         itemStyle: {
@@ -138,6 +204,27 @@ const chartOption = computed<EChartsOption>(() => ({
       },
       data: mapSeriesData.value,
       label: { show: false },
+    },
+    {
+      type: 'scatter',
+      coordinateSystem: 'geo',
+      data: scatterData.value,
+      symbol: 'circle',
+      symbolSize: 14,
+      label: {
+        show: true,
+        fontSize: 11,
+        color: '#ffffff',
+        formatter: (params: unknown) => {
+          const p = params as { value: Array<number | string> }
+          const total = typeof p.value?.[2] === 'number' ? p.value[2] : 0
+          return String(total)
+        },
+        offset: [0, 1],
+      },
+      emphasis: {
+        scale: 1.3,
+      },
     },
   ],
 }))
@@ -160,6 +247,10 @@ onMounted(async () => {
 
 <template>
   <div class="relative h-full border-none" content-class="h-full !p-0">
+    <!-- 预加载国旗图片，避免 tooltip 重复请求 -->
+    <div class="hidden">
+      <img v-for="point in points" :key="point.code" :src="`/assets/flags/${point.code}.svg`">
+    </div>
     <div class="relative flex h-88 flex-col items-center">
       <div
         v-if="totalServers > 0"

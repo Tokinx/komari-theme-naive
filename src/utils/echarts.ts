@@ -3,7 +3,7 @@
  *
  * 统一注册所有图表组件，避免在各个组件中重复注册
  */
-import { LineChart, MapChart } from 'echarts/charts'
+import { LineChart, MapChart, ScatterChart } from 'echarts/charts'
 import {
   DataZoomComponent,
   GeoComponent,
@@ -20,6 +20,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 use([
   LineChart,
   MapChart,
+  ScatterChart,
   GridComponent,
   GeoComponent,
   TooltipComponent,
