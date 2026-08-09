@@ -160,8 +160,9 @@ const chartOption = computed<EChartsOption>(() => ({
   geo: {
     map: mapName.value,
     roam: false,
-    layoutCenter: ['50%', '50%'],
-    layoutSize: '168%',
+    left: 'center',
+    top: 'center',
+    width: '100%',
     silent: true,
     itemStyle: {
       areaColor: 'transparent',
@@ -185,9 +186,6 @@ const chartOption = computed<EChartsOption>(() => ({
       left: 'center',
       top: 'center',
       width: '100%',
-      height: '100%',
-      layoutCenter: ['50%', '50%'],
-      layoutSize: '168%',
       tooltip: { show: false },
       emphasis: {
         label: { show: false },
@@ -220,7 +218,7 @@ const chartOption = computed<EChartsOption>(() => ({
           const total = typeof p.value?.[2] === 'number' ? p.value[2] : 0
           return String(total)
         },
-        offset: [0, 1],
+        offset: [0, 1.5],
       },
       emphasis: {
         scale: 1.3,
@@ -266,7 +264,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="relative flex-1 w-full -translate-y-1/6">
+      <div class="relative flex-1 w-full md:-translate-y-1/6 -translate-y-1/5">
         <Spinner :show="loading" class="h-full w-full" content-class="!bg-transparent">
           <VChart
             v-if="mapName"
