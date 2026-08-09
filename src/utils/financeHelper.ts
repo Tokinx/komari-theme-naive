@@ -350,7 +350,7 @@ async function fetchExchangeRates(): Promise<ExchangeRates | null> {
   return null
 }
 
-async function fetchWithTimeout(url: string, timeoutMs = 5000): Promise<Response> {
+export async function fetchWithTimeout(url: string, timeoutMs = 5000): Promise<Response> {
   const controller = new AbortController()
   const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs)
 

@@ -1,4 +1,5 @@
 import { registerMap } from 'echarts/core'
+import { fetchWithTimeout } from '@/utils/financeHelper'
 import { emojiToRegionMap } from '@/utils/regionHelper'
 
 type WorldGeoJson = Exclude<
@@ -7,7 +8,13 @@ type WorldGeoJson = Exclude<
 >
 
 const WORLD_MAP_NAME = 'komari-world'
-const WORLD_MAP_ASSET_URL = `${import.meta.env.BASE_URL}maps/world.json`
+// 世界地图数据源：多 CDN 依次回退，避免单一 CDN 故障影响地图展示
+const WORLD_GEO_JSON_URLS = [
+  'https://cdn.jsdelivr.net/gh/apache/echarts-www@master/asset/map/json/world.json',
+  'https://fastly.jsdelivr.net/gh/apache/echarts-www@master/asset/map/json/world.json',
+  'https://gcore.jsdelivr.net/gh/apache/echarts-www@master/asset/map/json/world.json',
+  'https://raw.githubusercontent.com/apache/echarts-www/master/asset/map/json/world.json',
+]
 const WORLD_MAP_CACHE_KEY_PREFIX = 'komari-theme-emerald:world-map'
 const WORLD_MAP_CACHE_KEY = `${WORLD_MAP_CACHE_KEY_PREFIX}` // :${__BUILD_GIT_HASH__}
 
@@ -163,14 +170,26 @@ async function loadWorldGeoJson(): Promise<WorldGeoJson> {
   if (cachedWorldGeoJson)
     return cachedWorldGeoJson
 
-  const response = await fetch(WORLD_MAP_ASSET_URL)
-  if (!response.ok) {
-    throw new Error(`Failed to load world map asset: ${response.status}`)
+  for (const url of WORLD_GEO_JSON_URLS) {
+    try {
+      const response = await fetchWithTimeout(url, 15000)
+      if (!response.ok)
+        continue
+
+      const data = await response.json() as unknown
+      if (!isValidWorldGeoJson(data))
+        continue
+
+      const worldGeoJson = normalizeWorldGeoJson(data)
+      writeCachedWorldGeoJson(worldGeoJson)
+      return worldGeoJson
+    }
+    catch (error) {
+      console.warn(`加载世界地图失败: ${url}`, error)
+    }
   }
 
-  const worldGeoJson = normalizeWorldGeoJson(await response.json() as WorldGeoJson)
-  writeCachedWorldGeoJson(worldGeoJson)
-  return worldGeoJson
+  throw new Error('Failed to load world map from all CDNs')
 }
 
 export async function ensureWorldMapRegistered(): Promise<string> {
