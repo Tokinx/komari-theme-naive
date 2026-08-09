@@ -51,8 +51,13 @@ jobs:
           }
 
           function readJsonAtRevision(revision, filePath) {
-            const content = execFileSync('git', ['show', `${revision}:${filePath}`], { encoding: 'utf8' })
-            return JSON.parse(content)
+            try {
+              const content = execFileSync('git', ['show', `${revision}:${filePath}`], { encoding: 'utf8', timeout: 5000 })
+              return JSON.parse(content)
+            }
+            catch {
+              return null
+            }
           }
 
           const packageJson = readJson('package.json')
@@ -68,7 +73,8 @@ jobs:
           let versionChanged = true
 
           if (beforeSha && beforeSha !== zeroSha) {
-            previousVersion = readJsonAtRevision(beforeSha, 'package.json').version ?? ''
+            const prev = readJsonAtRevision(beforeSha, 'package.json')
+            previousVersion = prev?.version ?? ''
             versionChanged = previousVersion !== currentVersion
           }
 
