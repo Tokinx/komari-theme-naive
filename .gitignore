@@ -44,3 +44,5 @@ __screenshots__/
 komari-theme-*.zip
 bun.lock
 .mimocode
+.zcode
+.playwright-mcp
