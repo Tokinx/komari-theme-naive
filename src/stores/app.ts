@@ -167,6 +167,15 @@ const useAppStore = defineStore('app', () => {
     return names
   })
 
+  // 计算属性：离线节点后置（默认顺序下离线节点排到所有节点最后）
+  const offlineNodesLast = computed<boolean>(() => {
+    const settings = publicSettings.value?.theme_settings
+    if (settings && typeof settings.offlineNodesLast === 'boolean') {
+      return settings.offlineNodesLast
+    }
+    return false
+  })
+
   // 计算属性：ICP 备案配置
   const icpEnabled = computed<boolean>(() => {
     const settings = publicSettings.value?.theme_settings
@@ -348,6 +357,7 @@ const useAppStore = defineStore('app', () => {
     hideAdminEntryWhenLoggedOut,
     disablePageAnimation,
     pingNetworkOrder,
+    offlineNodesLast,
     icpEnabled,
     icpNumber,
     icpUrl,
