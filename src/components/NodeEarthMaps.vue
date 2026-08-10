@@ -123,6 +123,8 @@ const scatterData = computed(() => points.value.map(point => ({
   value: [point.coord[1], point.coord[0], point.total],
   online: point.online,
   offline: point.offline,
+  symbolSize: point.total <= 1 ? 8 : 14,
+  label: { show: point.total > 1 },
   itemStyle: {
     color: point.offline > 0
       ? chartThemeColors.value.dotYellow
@@ -208,10 +210,13 @@ const chartOption = computed<EChartsOption>(() => ({
       coordinateSystem: 'geo',
       data: scatterData.value,
       symbol: 'circle',
-      symbolSize: 14,
+      itemStyle: {
+        color: chartThemeColors.value.dotEmerald,
+        borderColor: '#ffffff',
+        borderWidth: 1,
+      },
       label: {
-        show: true,
-        fontSize: 11,
+        fontSize: 10,
         color: '#ffffff',
         formatter: (params: unknown) => {
           const p = params as { value: Array<number | string> }
