@@ -223,7 +223,6 @@ const chartOption = computed<EChartsOption>(() => ({
           const total = typeof p.value?.[2] === 'number' ? p.value[2] : 0
           return String(total)
         },
-        offset: [0, 1.5],
       },
       emphasis: {
         scale: 1.3,
