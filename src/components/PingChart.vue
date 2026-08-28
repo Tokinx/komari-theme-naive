@@ -51,12 +51,16 @@ const chartColors = [
 // 从 publicSettings 获取记录保留时间
 const maxPingRecordPreserveTime = computed(() => appStore.publicSettings?.ping_record_preserve_time || 168)
 
-// 视图选项
+// 视图选项（与 LoadChart 对齐，12 小时仅网络图有；60/90 天仅在实际保留时间足够时显示）
 const presetViews = [
   { label: '1 小时', hours: 1 },
   { label: '6 小时', hours: 6 },
   { label: '12 小时', hours: 12 },
   { label: '1 天', hours: 24 },
+  { label: '7 天', hours: 168 },
+  { label: '30 天', hours: 720 },
+  { label: '60 天', hours: 1440 },
+  { label: '90 天', hours: 2160 },
 ]
 
 // 可用视图列表

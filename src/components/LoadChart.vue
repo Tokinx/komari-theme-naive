@@ -104,12 +104,15 @@ const baseTooltipConfig = computed(() => ({
 const chartMargin = { top: 30, right: 24, bottom: 32, left: 56 }
 const chartMarginWithLegend = { top: 30, right: 24, bottom: 52, left: 56 }
 
-// 视图选项
+// 视图选项（与 PingChart 对齐，实时仅负载图有；60/90 天仅在实际保留时间足够时显示）
 const presetViews = [
-  { label: '4 小时', hours: 4 },
+  { label: '1 小时', hours: 1 },
+  { label: '6 小时', hours: 6 },
   { label: '1 天', hours: 24 },
   { label: '7 天', hours: 168 },
   { label: '30 天', hours: 720 },
+  { label: '60 天', hours: 1440 },
+  { label: '90 天', hours: 2160 },
 ]
 
 // 可用视图列表
@@ -130,7 +133,7 @@ const availableViews = computed(() => {
       : `${maxHours} 小时`
     views.push({ label, hours: maxHours })
   }
-  else if (maxHours > 4 && !presetViews.some(v => v.hours === maxHours)) {
+  else if (maxHours > 1 && !presetViews.some(v => v.hours === maxHours)) {
     const label = maxHours % 24 === 0
       ? `${Math.floor(maxHours / 24)} 天`
       : `${maxHours} 小时`
